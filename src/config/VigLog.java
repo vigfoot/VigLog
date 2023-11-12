@@ -24,4 +24,8 @@ public class VigLog extends Logger {
     protected VigLog(String name, String resourceBundleName) {
         super(name, resourceBundleName);
     }
+
+
+
+
 }
