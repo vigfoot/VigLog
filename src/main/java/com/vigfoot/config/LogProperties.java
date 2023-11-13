@@ -3,9 +3,9 @@ package com.vigfoot.config;
 import com.vigfoot.exception.MESSAGE;
 import com.vigfoot.exception.VigLogException;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Properties;
 
 public class LogProperties {
@@ -15,14 +15,17 @@ public class LogProperties {
         try {
             properties.load(new FileInputStream(propertiesDir));
         } catch (IOException e) {
-//            throw new VigLogException(MESSAGE.NO_PROP.msg);
             try {
                 properties.load(new FileInputStream("./src/main/resources/basics/vig-log.properties"));
-            } catch (IOException ignore) {}
+            } catch (IOException ignore) {
+                throw new VigLogException(MESSAGE.NO_PROP.msg);
+            }
         }
 
-        for (String name : properties.stringPropertyNames()) {
-            System.out.println(name + " " + properties.get(name));;
+        final Enumeration<?> enumeration = properties.propertyNames();
+        while (enumeration.hasMoreElements()) {
+            final String name = (String) enumeration.nextElement();
+            System.out.println(name + " " + properties.get(name));
         }
     }
 }

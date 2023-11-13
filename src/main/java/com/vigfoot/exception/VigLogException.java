@@ -10,7 +10,7 @@ public class VigLogException extends RuntimeException {
         final StringBuilder builder = new StringBuilder();
 
         for (String message : messages) {
-            builder.append(message).append(System.lineSeparator());
+            builder.append(message).append(System.getProperty("line.separator"));
         }
 
         throw new VigLogException(builder.toString());
