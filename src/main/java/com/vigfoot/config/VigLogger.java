@@ -1,4 +1,4 @@
-package java.com.vigfoot.config;
+package com.vigfoot.config;
 
 import java.util.MissingResourceException;
 import java.util.logging.Logger;

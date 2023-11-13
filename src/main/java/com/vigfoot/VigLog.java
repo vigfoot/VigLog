@@ -1,4 +1,4 @@
-package java.com.vigfoot;
+package com.vigfoot;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
