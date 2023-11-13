@@ -1,16 +1,12 @@
-package java.com.vigfoot.config;
-
-import org.junit.Test;
+package com.vigfoot.test;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
 
-public class VigLoggerTest {
+public class Test {
 
-    @Test
-    public void test() throws IOException {
+    public static void main(String[] args) throws Exception {
         final Properties properties = new Properties();
         properties.load(new FileInputStream("com.vigfoot.basics.vig-log.properties"));
 
