@@ -10,6 +10,6 @@ class LogPropertiesTest {
 
     @Test
     void test1() throws IOException {
-        new LogProperties().test();
+        new LogProperties().getLogProperties("/");
     }
 }
