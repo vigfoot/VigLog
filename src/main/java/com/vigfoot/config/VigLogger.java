@@ -1,4 +1,4 @@
-package com.vigfoot.config;
+package java.com.vigfoot.config;
 
 import java.util.MissingResourceException;
 import java.util.logging.Logger;
@@ -6,6 +6,9 @@ import java.util.logging.Logger;
 public class VigLogger extends Logger {
 
     private VigLogger vigLogger;
+
+
+
 
 
     /**
@@ -28,5 +31,4 @@ public class VigLogger extends Logger {
     protected VigLogger(String name, String resourceBundleName) {
         super(name, resourceBundleName);
     }
-
 }
