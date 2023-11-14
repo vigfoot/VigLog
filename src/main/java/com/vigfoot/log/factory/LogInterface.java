@@ -1,4 +1,4 @@
-package com.vigfoot.log.ui;
+package com.vigfoot.log.factory;
 
 interface LogInterface {
 
