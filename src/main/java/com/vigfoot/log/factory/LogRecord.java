@@ -13,28 +13,13 @@ public class LogRecord {
     private static String absolutePath;
     private static String logFileName;
 
-
-    private LogRecord() {
+    protected void log(String log, Object... arguments) {
+        final String logResult = buildLog(log, arguments);
+        writeConsole(logResult);
+        writeLogFile(logResult);
     }
 
-    public static LogRecord getLogRecord() {
-        if (logRecord == null) {
-            logRecord = new LogRecord();
-        }
-        return logRecord;
-    }
-
-    protected void log(final String... msgs) {
-        new Thread(new Runnable() {
-            public void run() {
-                final String logResult = buildLog(msgs);
-                writeConsole(logResult);
-                writeLogFile(logResult);
-            }
-        }).start();
-    }
-
-    private static synchronized void writeConsole(String logResult) {
+    private synchronized void writeConsole(final String logResult) {
         try {
             new PrintStream(System.out, true, "UTF-8").println(logResult);
         } catch (UnsupportedEncodingException e) {
@@ -42,7 +27,7 @@ public class LogRecord {
         }
     }
 
-    private static synchronized void writeLogFile(String logResult) {
+    private synchronized void writeLogFile(final String logResult) {
         File currentLogFile = new File(absolutePath + File.separator + logFileName);
         final String lastLogDateFormat = new SimpleDateFormat("_yyyyMMdd")
                 .format(new Date(currentLogFile.lastModified()));
@@ -66,40 +51,40 @@ public class LogRecord {
             try {
                 if (fileWriter != null) {
                     fileWriter.flush();
-//                    fileWriter.close();
                 }
             } catch (IOException ignore) {
             }
         }
     }
 
-    private static String buildLog(String[] msgs) {
-        String msgTemplate = msgs[0];
+    private String buildLog(String log, Object... arguments) {
+        if (arguments != null && arguments.length != 0){
+            final int alternateCount = (log.length() - log.replace("{}", "").length()) / 2;
+            final int argumentsCount = arguments.length;
+            if (alternateCount != argumentsCount) {
+                final StringBuilder errorMessageBuilder = new StringBuilder();
+                errorMessageBuilder.append(log);
+                for (int i = 0; i < arguments.length; i++) {
+                    errorMessageBuilder.append(", ").append(arguments[i]);
+                }
 
-        final int alternateCount = (msgTemplate.length() - msgTemplate.replace("{}", "").length()) / 2;
-        final int argumentsCount = msgs.length - 1;
-        if (alternateCount != argumentsCount) {
-            final StringBuilder errorMessageBuilder = new StringBuilder();
-            errorMessageBuilder.append(msgs[0]);
-            for (int i = 1; i < msgs.length; i++) {
-                errorMessageBuilder.append(", ").append(msgs[i]);
+                throw new VigLogException("All alternate characters '{}' must be used"
+                        , "\t" + errorMessageBuilder
+                        , "\t\t'{}' Count: " + alternateCount
+                        , "\t\tArgument Count: " + argumentsCount
+                );
             }
-
-            throw new VigLogException("All alternate characters '{}' must be used"
-                    , "\t" + errorMessageBuilder
-                    , "\t\t'{}' Count: " + alternateCount
-                    , "\t\tArgument Count: " + argumentsCount
-            );
         }
 
-        for (int i = 1; i < msgs.length; i++) {
-            msgTemplate = msgTemplate.replaceFirst("\\{\\}", msgs[i]);
+        String msgTemplate = log;
+        for (int i = 0; i < arguments.length; i++) {
+            msgTemplate = msgTemplate.replaceFirst("\\{\\}", String.valueOf(arguments[i]));
         }
 
         return msgTemplate;
     }
 
-    protected synchronized void log(Exception e) {
+    protected void log(Exception e) {
         e.printStackTrace(System.err);
     }
 }

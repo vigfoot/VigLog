@@ -1,4 +1,4 @@
-package com.vigfoot.setting.format;
+package com.vigfoot.ui;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;

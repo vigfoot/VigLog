@@ -4,73 +4,80 @@ package com.vigfoot.log.factory;
 public class Logger implements LogInterface {
 
     enum Level {
-        ZERO("[Log 0] ")
-        , ONE("[Log 1] ")
-        , TWO("[Log 2] ")
-        , THREE("[Log 3] ")
-        , FOUR("[Log 4] ")
-        , FIVE("[Log 5] ")
-        , SIX("[Log 6] ")
-        , SEVEN("[Log 7] ")
-        , EIGHT("[Log 8] ")
-        , NINE("[Log 9] ");
+        ZERO("[Log 0] "), ONE("[Log 1] "), TWO("[Log 2] "), THREE("[Log 3] "), FOUR("[Log 4] "), FIVE("[Log 5] "), SIX("[Log 6] "), SEVEN("[Log 7] "), EIGHT("[Log 8] "), NINE("[Log 9] ");
 
         final String prefix;
+
         Level(String prefix) {
             this.prefix = prefix;
         }
-        
-    }
-
-    private final LogRecord logRecord = LogRecord.getLogRecord();
-
-    public void log0(String... logMessages) {
-        final String[] logs = new String[logMessages.length];
-        logs[0] = Level.ZERO.prefix + logMessages[0];
-
-        System.arraycopy(logMessages, 1, logs, 1, logMessages.length - 1);
-        
-        logRecord.log(logs);
-    }
-
-    public void log1(String... logMessages) {
 
     }
 
-    public void log2(String... logMessages) {
+    private final LogRecord logRecord = new LogRecord();
+
+    private void log(Level level, String log, Object... arguments) {
+        for (int i = 0; i < new Throwable().getStackTrace().length; i++) { // caller
+            final String className = new Throwable().getStackTrace()[i].getClassName();
+            if (className.contains("com.vigfoot.log.factory")) continue;
+
+            System.out.println(className);
+            break;
+        }
+
+        logRecord.log(level.prefix + log, arguments);
+    }
+
+    public void log0(String log, Object... arguments) {
+        log(Level.ZERO, log, arguments);
+    }
+
+    public void log1(String log, Object... arguments) {
+        log(Level.ONE, log, arguments);
+    }
+
+    public void log2(String log, Object... arguments) {
+        log(Level.TWO, log, arguments);
 
     }
 
-    public void log3(String... logMessages) {
+    public void log3(String log, Object... arguments) {
+        log(Level.THREE, log, arguments);
 
     }
 
-    public void log4(String... logMessages) {
+    public void log4(String log, Object... arguments) {
+        log(Level.FOUR, log, arguments);
 
     }
 
-    public void log5(String... logMessages) {
+    public void log5(String log, Object... arguments) {
+        log(Level.FIVE, log, arguments);
 
     }
 
-    public void log6(String... logMessages) {
+    public void log6(String log, Object... arguments) {
+        log(Level.SIX, log, arguments);
 
     }
 
-    public void log7(String... logMessages) {
+    public void log7(String log, Object... arguments) {
+        log(Level.SEVEN, log, arguments);
 
     }
 
-    public void log8(String... logMessages) {
+    public void log8(String log, Object... arguments) {
+        log(Level.EIGHT, log, arguments);
 
     }
 
-    public void log9(String... logMessages) {
+    public void log9(String log, Object... arguments) {
+        log(Level.NINE, log, arguments);
 
     }
 
     public void logForException(Exception e) {
-        logForException(9, e);
+        logForException(Level.NINE.ordinal(), e);
     }
 
     public void logForException(int logLevel, Exception e) {
