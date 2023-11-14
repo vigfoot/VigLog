@@ -1,7 +1,5 @@
-package com.vigfoot.log.level;
+package com.vigfoot.log.ui;
 
-
-import com.vigfoot.log.level.ui.LogInterface;
 
 public class Logger implements LogInterface {
 
@@ -43,5 +41,9 @@ public class Logger implements LogInterface {
 
     public void log9(String... logs) {
 
+    }
+
+    public void logForException(Exception e) {
+        e.printStackTrace();
     }
 }

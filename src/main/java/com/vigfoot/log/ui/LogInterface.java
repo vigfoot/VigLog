@@ -1,6 +1,6 @@
-package com.vigfoot.log.level.ui;
+package com.vigfoot.log.ui;
 
-public interface LogInterface {
+interface LogInterface {
 
     void log0(String... logs);
 
@@ -21,4 +21,6 @@ public interface LogInterface {
     void log8(String... logs);
 
     void log9(String... logs);
+
+    void logForException(Exception e);
 }
