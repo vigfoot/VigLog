@@ -15,7 +15,7 @@ public class Logger implements LogInterface {
         , EIGHT("[Log 8] ")
         , NINE("[Log 9] ");
 
-        String prefix;
+        final String prefix;
         Level(String prefix) {
             this.prefix = prefix;
         }
@@ -70,6 +70,14 @@ public class Logger implements LogInterface {
     }
 
     public void logForException(Exception e) {
-        e.printStackTrace();
+        logForException(9, e);
+    }
+
+    public void logForException(int logLevel, Exception e) {
+
+    }
+
+    private boolean isUpperLogLevel(int logLevel) {
+        return false;
     }
 }
