@@ -58,14 +58,15 @@ public class LogRecord {
     }
 
     private String buildLog(String log, Object... arguments) {
-        if (arguments != null && arguments.length != 0){
+        String msgTemplate = log;
+        if (arguments != null && arguments.length > 0) {
             final int alternateCount = (log.length() - log.replace("{}", "").length()) / 2;
             final int argumentsCount = arguments.length;
             if (alternateCount != argumentsCount) {
                 final StringBuilder errorMessageBuilder = new StringBuilder();
                 errorMessageBuilder.append(log);
-                for (int i = 0; i < arguments.length; i++) {
-                    errorMessageBuilder.append(", ").append(arguments[i]);
+                for (Object argument : arguments) {
+                    errorMessageBuilder.append(", ").append(argument);
                 }
 
                 throw new VigLogException("All alternate characters '{}' must be used"
@@ -74,11 +75,10 @@ public class LogRecord {
                         , "\t\tArgument Count: " + argumentsCount
                 );
             }
-        }
-
-        String msgTemplate = log;
-        for (int i = 0; i < arguments.length; i++) {
-            msgTemplate = msgTemplate.replaceFirst("\\{\\}", String.valueOf(arguments[i]));
+            for (Object argument : arguments) {
+                msgTemplate = msgTemplate
+                        .replaceFirst("\\{\\}", String.valueOf(argument));
+            }
         }
 
         return msgTemplate;

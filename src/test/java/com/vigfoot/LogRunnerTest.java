@@ -6,7 +6,8 @@ import junit.framework.TestCase;
 public class LogRunnerTest extends TestCase {
 
     public void testName() {
-        new Logger().log0("{}.sdfasdfsa {}");
+
+        new Logger().log0("1234231423152354");
 
     }
 }
