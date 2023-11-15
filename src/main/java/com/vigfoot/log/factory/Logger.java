@@ -3,7 +3,7 @@ package com.vigfoot.log.factory;
 public class Logger implements LogInterface {
 
     enum Level {
-        ZERO("[Log 0] "), ONE("[Log 1] "), TWO("[Log 2] "), THREE("[Log 3] "), FOUR("[Log 4] "), FIVE("[Log 5] "), SIX("[Log 6] "), SEVEN("[Log 7] "), EIGHT("[Log 8] "), NINE("[Log 9] ");
+        ZERO("[Level 0] "), ONE("[Level 1] "), TWO("[Level 2] "), THREE("[Level 3] "), FOUR("[Level 4] "), FIVE("[Level 5] "), SIX("[Level 6] "), SEVEN("[Level 7] "), EIGHT("[Level 8] "), NINE("[Level 9] ");
 
         final String prefix;
 
@@ -14,8 +14,11 @@ public class Logger implements LogInterface {
     }
 
     private final LogRecord logRecord = new LogRecord();//logmanager로 대체 예정(thread관리)
+    private int defaultLevel = 0;
 
     private void log(Level level, String log, Object... arguments) {
+        if (!isUpperLogLevel(level.ordinal())) return;
+
         final String callerClassName = getCallerClassName();
 
         logRecord.log(level.prefix + log, arguments);
@@ -80,6 +83,6 @@ public class Logger implements LogInterface {
     }
 
     private boolean isUpperLogLevel(int logLevel) {
-        return false;
+        return logLevel >= defaultLevel;
     }
 }
