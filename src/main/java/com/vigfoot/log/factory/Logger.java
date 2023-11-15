@@ -14,7 +14,8 @@ public class Logger implements LogInterface {
     }
 
     private final LogRecord logRecord = new LogRecord();//logmanager로 대체 예정(thread관리)
-    private int defaultLevel = 0;
+    private int defaultLevel;
+    private long systemTimeMillis;
 
     private void log(Level level, String log, Object... arguments) {
         if (!isUpperLogLevel(level.ordinal())) return;
@@ -74,11 +75,11 @@ public class Logger implements LogInterface {
         log(Level.NINE, log, arguments);
     }
 
-    public void logForException(Exception e) {
-        logForException(Level.NINE.ordinal(), e);
+    public void logStackTrace(Exception e) {
+        logStackTrace(Level.NINE.ordinal(), e);
     }
 
-    public void logForException(int logLevel, Exception e) {
+    public void logStackTrace(int logLevel, Exception e) {
 
     }
 

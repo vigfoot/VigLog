@@ -19,6 +19,12 @@ public class LogRecord {
         writeLogFile(logResult);
     }
 
+    protected void logStackTrace(int level, Exception e) {
+//        e.printStackTrace(System.err);
+//        writeConsole(logResult);
+//        writeLogFile(logResult);
+    }
+
     private synchronized void writeConsole(final String logResult) {
         try {
             new PrintStream(System.out, true, "UTF-8").println(logResult);
@@ -82,9 +88,5 @@ public class LogRecord {
         }
 
         return msgTemplate;
-    }
-
-    protected void log(Exception e) {
-        e.printStackTrace(System.err);
     }
 }

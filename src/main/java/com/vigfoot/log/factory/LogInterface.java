@@ -22,6 +22,6 @@ interface LogInterface {
 
     void log9(String log, Object... arguments);
 
-    void logForException(int logLevel, Exception e);
+    void logStackTrace(int logLevel, Exception e);
 
 }
