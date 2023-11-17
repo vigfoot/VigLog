@@ -1,35 +1,36 @@
 package com.vigfoot.log;
 
+import com.vigfoot.config.DefaultConfiguration;
+
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ClassScanner {
 
-    void scan() {
-        final File[] fileList = getFileList(System.getProperty("user.dir"));
-//        deepScanFileList()
+    File[] scan() {
+        return deepScanClassFile(DefaultConfiguration.CLASS_PATH);
     }
 
-    private File[] getFileList(String parentName) {
-        if (parentName == null || "".equalsIgnoreCase(parentName.trim())) return null;
-        return getFileList(new File(parentName));
+    private File[] deepScanClassFile(String parentName) {
+        return deepScanClassFile(new File(parentName));
     }
 
-    private File[] getFileList(File parent) {
-        if (parent.listFiles() == null) return null;
-        return parent.listFiles();
-    }
+    private File[] deepScanClassFile(File... parents) {
+        if (parents == null || parents.length == 0) return null;
+        final List<File> scanFiles = new ArrayList<File>();
+        for (File parent : parents) {
+            if (parent.isDirectory()) {
+                final File[] deepScanFile = deepScanClassFile(parent.listFiles());
+                if (deepScanFile == null || deepScanFile.length < 1) continue;
+                Collections.addAll(scanFiles, deepScanFile);
 
-    private File[] collectClassFileName(File[] files){
-        if (files == null || files.length == 0) return null;
-        final List<File> classFileList = new ArrayList<File>();
-
-        for (File file : files) {
-            if (file.getName().contains(".class"))
-                classFileList.add(file);
+            } else {
+                if (parent.getName().contains(".class"))
+                    scanFiles.add(parent);
+            }
         }
-
-        return classFileList.toArray(new File[0]);
+        return scanFiles.toArray(new File[0]);
     }
 }
