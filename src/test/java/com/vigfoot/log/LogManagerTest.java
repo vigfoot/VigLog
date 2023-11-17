@@ -7,6 +7,6 @@ class LogManagerTest {
 
     @Test
     void test(){
-        new LogManager().filterDeclaredLogAnnotation();
+        new LogManager().config();
     }
 }

@@ -3,17 +3,33 @@ package com.vigfoot.log;
 import com.vigfoot.config.DefaultConfiguration;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class ClassScanner {
 
-    List<Class<?>> scan() {
+    List<Class<?>> scanUserAllClass() {
         final List<Class<?>> classList = new ArrayList<Class<?>>();
         final File[] files = deepScanClassFile(DefaultConfiguration.USER_DIRECTORY);
         for (File file : files) classList.add(collectClass(file));
 
+        return classList;
+    }
+
+    List<Class<?>> filterDeclaredLogAnnotation() {
+        final List<Class<?>> scan = scanUserAllClass();
+        final List<Class<?>> classList = new ArrayList<Class<?>>();
+        for (Class<?> clazz : scan) {
+            final Annotation[] declaredAnnotations = clazz.getDeclaredAnnotations();
+            for (Annotation annotation : declaredAnnotations) {
+                if (DefaultConfiguration.LOG_PACKAGE.equals(annotation.annotationType().getName())) {
+                    classList.add(clazz);
+                    break;
+                }
+            }
+        }
         return classList;
     }
 

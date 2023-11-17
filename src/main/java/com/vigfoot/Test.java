@@ -1,9 +1,7 @@
 package com.vigfoot;
 
-import java.io.File;
-
+@VigLog
 public class Test {
-
 
     public static void main(String[] args) {
 
