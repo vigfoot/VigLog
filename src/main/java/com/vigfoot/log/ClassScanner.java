@@ -20,12 +20,12 @@ public class ClassScanner {
     private Class<?> collectClass(File file) {
         for (String classpath : DefaultConfiguration.CLASS_PATH_LIST) {
             if (!file.getAbsolutePath().contains(classpath)) continue;
-
-            final String className = file.getAbsolutePath()
+            String className = file.getAbsolutePath()
                     .replace(classpath, "")
                     .replace(".class", "")
-                    .substring(1)
-                    .replaceAll("\\\\", ".");
+                    .replace(DefaultConfiguration.FILE_SEPARATOR, ".");
+
+            className = className.indexOf(".") == 0 ? className.substring(1) : className;
             try {
                 return Class.forName(className);
             } catch (ClassNotFoundException ignore) {
