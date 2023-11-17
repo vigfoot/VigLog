@@ -9,8 +9,29 @@ import java.util.List;
 
 public class ClassScanner {
 
-    File[] scan() {
-        return deepScanClassFile(DefaultConfiguration.CLASS_PATH);
+    List<Class<?>> scan() {
+        final List<Class<?>> classList = new ArrayList<Class<?>>();
+        final File[] files = deepScanClassFile(DefaultConfiguration.USER_DIRECTORY);
+        for (File file : files) classList.add(collectClass(file));
+
+        return classList;
+    }
+
+    private Class<?> collectClass(File file) {
+        for (String classpath : DefaultConfiguration.CLASS_PATH_LIST) {
+            if (!file.getAbsolutePath().contains(classpath)) continue;
+
+            final String className = file.getAbsolutePath()
+                    .replace(classpath, "")
+                    .replace(".class", "")
+                    .substring(1)
+                    .replaceAll("\\\\", ".");
+            try {
+                return Class.forName(className);
+            } catch (ClassNotFoundException ignore) {
+            }
+        }
+        return null;
     }
 
     private File[] deepScanClassFile(String parentName) {
