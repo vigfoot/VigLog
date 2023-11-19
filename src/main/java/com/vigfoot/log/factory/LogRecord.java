@@ -6,15 +6,27 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class LogRecord {
+public class LogRecord extends Thread{
 
     private static LogRecord logRecord;
-    private static FileWriter fileWriter;
+
+    private String logPrefix;
+    private Object[] arguments;
+    private FileWriter fileWriter;
     private static String absolutePath;
     private static String logFileName;
 
-    protected void log(String log, Object... arguments) {
-        final String logResult = buildLog(log, arguments);
+    public void setLogPrefix(String logPrefix) {
+        this.logPrefix = logPrefix;
+    }
+
+    public void setArguments(Object[] arguments) {
+        this.arguments = arguments;
+    }
+
+    @Override
+    public void run() {
+        final String logResult = buildLog(logPrefix, arguments);
         writeConsole(logResult);
         writeLogFile(logResult);
     }

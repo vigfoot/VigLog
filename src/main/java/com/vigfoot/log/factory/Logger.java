@@ -19,10 +19,9 @@ public class Logger implements LogInterface {
 
     private void log(Level level, String log, Object... arguments) {
         if (!isUpperLogLevel(level.ordinal())) return;
-
-        final String callerClassName = getCallerClassName();
-
-        logRecord.log(level.prefix + log, arguments);
+        logRecord.setLogPrefix(level.prefix + log);
+        logRecord.setArguments(arguments);
+        logRecord.start();
     }
 
     private String getCallerClassName() {
