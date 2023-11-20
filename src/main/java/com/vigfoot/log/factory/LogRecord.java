@@ -1,5 +1,6 @@
 package com.vigfoot.log.factory;
 
+import com.vigfoot.V;
 import com.vigfoot.config.DefaultProperties;
 import com.vigfoot.exception.VigLogException;
 
@@ -10,15 +11,23 @@ import java.util.Date;
 public class LogRecord extends Thread {
 
     private static LogRecord logRecord;
-
     private String logPrefix;
     private Object[] arguments;
     private FileWriter fileWriter;
     private String absolutePath;
     private String logFileName;
+    private boolean useLogFile;
+    private String logPattern;
+    private String dateTimeFormat;
+    private V.Level level;
+    private long currentTimeMillis;
 
     public void setLogPrefix(String logPrefix) {
         this.logPrefix = logPrefix;
+    }
+
+    public void setLogPattern(String logPattern) {
+        this.logPattern = logPattern;
     }
 
     public void setArguments(Object[] arguments) {
@@ -29,19 +38,36 @@ public class LogRecord extends Thread {
         this.absolutePath = absolutePath;
     }
 
+    public void setDateTimeFormat(String dateTimeFormat) {
+        this.dateTimeFormat = dateTimeFormat;
+    }
+
+    public void setCurrentTimeMillis(long currentTimeMillis) {
+        this.currentTimeMillis = currentTimeMillis;
+    }
+
     public void setLogFileName(String logFileName) {
-        this.logFileName = logFileName;
+        try {
+            this.logFileName = logFileName;
+            this.fileWriter = new FileWriter(logFileName, true);
+        } catch (IOException e) {
+            throw new VigLogException();
+        }
+    }
+
+    public void setLevel(V.Level level) {
+        this.level = level;
     }
 
     private LogRecord() {
     }
 
-    public static void writeLog(String logPrefix, Object[] arguments) {
-        LogRecord.writeLog(logPrefix, arguments, null, null);
+    public static void writeLog(V.Level level, String logPrefix, Object[] arguments) {
+        LogRecord.writeLog(level, logPrefix, arguments, null, null, null, null);
     }
 
-    public static void writeLog(String logPrefix, Object[] arguments, String absolutePath, String logFileName) {
-        if (LogRecord.logRecord == null){
+    public static void writeLog(V.Level level, String logPrefix, Object[] arguments, String absolutePath, String logFileName, String logPattern, String dateTimeFormat) {
+        if (LogRecord.logRecord == null) {
             LogRecord.logRecord = new LogRecord();
             LogRecord.logRecord.setDaemon(true);
             LogRecord.logRecord.setName(DefaultProperties.THREAD_NAME);
@@ -49,25 +75,45 @@ public class LogRecord extends Thread {
 
         logRecord.setLogPrefix(logPrefix);
         logRecord.setArguments(arguments);
+        logRecord.setCurrentTimeMillis(System.currentTimeMillis());
+
+        if (level != null) {
+            logRecord.setLevel(level);
+        } else {
+            logRecord.setLevel(DefaultProperties.Log.level);
+        }
 
         if (absolutePath != null) {
             logRecord.setAbsolutePath(absolutePath);
         } else {
-            logRecord.setAbsolutePath(absolutePath);
+            logRecord.setAbsolutePath(DefaultProperties.USER_DIRECTORY);
         }
 
         if (logFileName != null) {
             logRecord.setLogFileName(logFileName);
         } else {
-            logRecord.setLogFileName(logFileName);
+            logRecord.setLogFileName(DefaultProperties.Log.fileName);
         }
 
+        if (logPattern != null) {
+            logRecord.setLogPattern(logPattern);
+        } else {
+            logRecord.setLogPattern(DefaultProperties.Log.pattern);
+        }
+
+        if (dateTimeFormat != null) {
+            logRecord.setDateTimeFormat(dateTimeFormat);
+        } else {
+            logRecord.setDateTimeFormat(DefaultProperties.Log.dateTime);
+        }
+
+        LogRecord.logRecord.start();
         LogRecord.logRecord.start();
     }
 
     @Override
     public void run() {
-        final String logResult = buildLog(logPrefix, arguments);
+        final String logResult = buildLog(level, logPrefix, arguments);
         writeConsole(logResult);
         writeLogFile(logResult);
     }
@@ -85,22 +131,22 @@ public class LogRecord extends Thread {
     }
 
     private synchronized void writeLogFile(String logResult) {
-        File currentLogFile = new File(absolutePath + File.separator + logFileName);
-        final String lastLogDateFormat = new SimpleDateFormat("_yyyyMMdd")
-                .format(new Date(currentLogFile.lastModified()));
-        final String currentDateFormat = new SimpleDateFormat("_yyyyMMdd")
-                .format(new Date());
+        File currentLogFile = new File(absolutePath + File.separator + logFileName + ".log");
+        if (currentLogFile.exists()) {
+            final String lastLogDateFormat = new SimpleDateFormat("_yyyyMMdd")
+                    .format(new Date(currentLogFile.lastModified()));
+            final String currentDateFormat = new SimpleDateFormat("_yyyyMMdd")
+                    .format(new Date(currentTimeMillis));
 
-        final boolean isOverMidnight = !currentDateFormat.equalsIgnoreCase(lastLogDateFormat);
-        if (isOverMidnight) {
-            final String recordFileName = absolutePath + File.separator + currentDateFormat + ".log";
-            final boolean renameResult = currentLogFile.renameTo(new File(recordFileName));
-            if (!renameResult) throw new VigLogException();
+            final boolean isOverMidnight = !currentDateFormat.equalsIgnoreCase(lastLogDateFormat);
+            if (isOverMidnight) {
+                final String recordFileName = absolutePath + File.separator + currentDateFormat + ".log";
+                final boolean renameResult = currentLogFile.renameTo(new File(recordFileName));
+                if (!renameResult) throw new VigLogException();
+            }
         }
 
         try {
-            if (fileWriter == null)
-                fileWriter = new FileWriter(logFileName, !isOverMidnight);
             fileWriter.write(logResult);
         } catch (IOException e) {
             throw new VigLogException();
@@ -114,8 +160,13 @@ public class LogRecord extends Thread {
         }
     }
 
-    private String buildLog(String log, Object... arguments) {
-        String msgTemplate = log;
+    private String buildLog(V.Level level, String log, Object... arguments) {
+        final String dateformat = new SimpleDateFormat(dateTimeFormat).format(new Date(currentTimeMillis));
+        String msgTemplate = logPattern
+                .replace("#level", String.valueOf(level.prefix()))
+                .replace("#dateTime", dateformat)
+                .replace("#msg", log);
+
         if (arguments != null && arguments.length > 0) {
             final int alternateCount = (log.length() - log.replace("{}", "").length()) / 2;
             final int argumentsCount = arguments.length;

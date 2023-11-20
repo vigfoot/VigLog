@@ -1,5 +1,7 @@
 package com.vigfoot.config;
 
+import com.vigfoot.V;
+
 public class DefaultProperties {
 
     public static String THREAD_NAME = "viglog";
@@ -8,4 +10,11 @@ public class DefaultProperties {
     public static String FILE_SEPARATOR = System.getProperty("file.separator");
     public static String[] CLASS_PATH_LIST = System.getProperty("java.class.path").split(";");
 
+    public static class Log {
+        public static String pattern = "[#level #dateTime] #msg";
+        public static String dateTime = "yyyy-MM-dd HH:mm:ss";
+        public static String fileName = "viglog";
+        public static V.Level level = V.Level.ZERO;
+
+    }
 }
