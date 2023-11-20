@@ -1,9 +1,10 @@
 package com.vigfoot.log;
 
 import com.vigfoot.config.ValueObject;
+import com.vigfoot.log.factory.LogRecord;
 
 import java.util.List;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 
 public class LogManager {
 
@@ -14,4 +15,6 @@ public class LogManager {
 
         }
     }
+
+
 }

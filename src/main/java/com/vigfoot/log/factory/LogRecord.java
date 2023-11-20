@@ -8,10 +8,10 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class LogRecord extends Thread {
+public class LogRecord {
 
     private static LogRecord logRecord;
-    private String logPrefix;
+    private String logMsg;
     private Object[] arguments;
     private FileWriter fileWriter;
     private String absolutePath;
@@ -22,8 +22,8 @@ public class LogRecord extends Thread {
     private V.Level level;
     private long currentTimeMillis;
 
-    public void setLogPrefix(String logPrefix) {
-        this.logPrefix = logPrefix;
+    public void setLogMsg(String logMsg) {
+        this.logMsg = logMsg;
     }
 
     public void setLogPattern(String logPattern) {
@@ -49,7 +49,7 @@ public class LogRecord extends Thread {
     public void setLogFileName(String logFileName) {
         try {
             this.logFileName = logFileName;
-            this.fileWriter = new FileWriter(logFileName, true);
+            this.fileWriter = new FileWriter(absolutePath + File.separator + logFileName + ".log", true);
         } catch (IOException e) {
             throw new VigLogException();
         }
@@ -69,11 +69,9 @@ public class LogRecord extends Thread {
     public static void writeLog(V.Level level, String logPrefix, Object[] arguments, String absolutePath, String logFileName, String logPattern, String dateTimeFormat) {
         if (LogRecord.logRecord == null) {
             LogRecord.logRecord = new LogRecord();
-            LogRecord.logRecord.setDaemon(true);
-            LogRecord.logRecord.setName(DefaultProperties.THREAD_NAME);
         }
 
-        logRecord.setLogPrefix(logPrefix);
+        logRecord.setLogMsg(logPrefix);
         logRecord.setArguments(arguments);
         logRecord.setCurrentTimeMillis(System.currentTimeMillis());
 
@@ -107,15 +105,9 @@ public class LogRecord extends Thread {
             logRecord.setDateTimeFormat(DefaultProperties.Log.dateTime);
         }
 
-        LogRecord.logRecord.start();
-        LogRecord.logRecord.start();
-    }
-
-    @Override
-    public void run() {
-        final String logResult = buildLog(level, logPrefix, arguments);
-        writeConsole(logResult);
-        writeLogFile(logResult);
+        final String logResult = logRecord.buildLog();
+        logRecord.writeConsole(logResult);
+        logRecord.writeLogFile(logResult);
     }
 
     protected void logStackTrace(int level, Exception e) {
@@ -124,14 +116,14 @@ public class LogRecord extends Thread {
 
     private synchronized void writeConsole(final String logResult) {
         try {
-            new PrintStream(System.out, true, "UTF-8").println(logResult);
+            new PrintStream(System.out, true, "UTF-8").print(logResult);
         } catch (UnsupportedEncodingException e) {
             throw new VigLogException("Unsupported Encoding UTF-8", "Check Your JDK Version");
         }
     }
 
     private synchronized void writeLogFile(String logResult) {
-        File currentLogFile = new File(absolutePath + File.separator + logFileName + ".log");
+        final File currentLogFile = new File(absolutePath + File.separator + logFileName + ".log");
         if (currentLogFile.exists()) {
             final String lastLogDateFormat = new SimpleDateFormat("_yyyyMMdd")
                     .format(new Date(currentLogFile.lastModified()));
@@ -160,19 +152,21 @@ public class LogRecord extends Thread {
         }
     }
 
-    private String buildLog(V.Level level, String log, Object... arguments) {
+    private String buildLog() {
         final String dateformat = new SimpleDateFormat(dateTimeFormat).format(new Date(currentTimeMillis));
         String msgTemplate = logPattern
                 .replace("#level", String.valueOf(level.prefix()))
                 .replace("#dateTime", dateformat)
-                .replace("#msg", log);
+                .replace("#msg", logMsg)
+                .replace("#nextLine", DefaultProperties.TEXT_NEXT_LINE)
+                ;
 
         if (arguments != null && arguments.length > 0) {
-            final int alternateCount = (log.length() - log.replace("{}", "").length()) / 2;
+            final int alternateCount = (logMsg.length() - logMsg.replace("{}", "").length()) / 2;
             final int argumentsCount = arguments.length;
             if (alternateCount != argumentsCount) {
                 final StringBuilder errorMessageBuilder = new StringBuilder();
-                errorMessageBuilder.append(log);
+                errorMessageBuilder.append(logMsg);
                 for (Object argument : arguments) {
                     errorMessageBuilder.append(", ").append(argument);
                 }
