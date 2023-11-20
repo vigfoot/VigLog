@@ -9,7 +9,7 @@ public @interface VigLog {
 
     String pattern() default "[#level #dateTime] #msg";
     String dateTime() default "yyyy-MM-dd HH:mm:ss";
-    String logFilePath() default "classpath://";
+    String logFilePath() default "";
     String logFileName() default "viglog";
 
 }

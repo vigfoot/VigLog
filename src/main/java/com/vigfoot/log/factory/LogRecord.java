@@ -67,54 +67,36 @@ public class LogRecord {
     }
 
     public static void writeLog(V.Level level, String logPrefix, Object[] arguments, String absolutePath, String logFileName, String logPattern, String dateTimeFormat) {
-        if (LogRecord.logRecord == null) {
+        if (LogRecord.logRecord == null)
             LogRecord.logRecord = new LogRecord();
-        }
 
         logRecord.setLogMsg(logPrefix);
         logRecord.setArguments(arguments);
         logRecord.setCurrentTimeMillis(System.currentTimeMillis());
-
-        if (level != null) {
-            logRecord.setLevel(level);
-        } else {
-            logRecord.setLevel(DefaultProperties.Log.level);
-        }
+        logRecord.setLevel(level != null?level:DefaultProperties.Log.level);
 
         if (absolutePath != null) {
             logRecord.setAbsolutePath(absolutePath);
+//            logRecord.setLogFileName(logFileName != null ? logFileName : DefaultProperties.Log.fileName);
+//            logRecord.setLogPattern(logPattern != null ? logPattern : DefaultProperties.Log.pattern);
+//            logRecord.setDateTimeFormat(dateTimeFormat != null ? dateTimeFormat : DefaultProperties.Log.dateTime);
+
         } else {
             logRecord.setAbsolutePath(DefaultProperties.USER_DIRECTORY);
+
         }
 
-        if (logFileName != null) {
-            logRecord.setLogFileName(logFileName);
-        } else {
-            logRecord.setLogFileName(DefaultProperties.Log.fileName);
-        }
-
-        if (logPattern != null) {
-            logRecord.setLogPattern(logPattern);
-        } else {
-            logRecord.setLogPattern(DefaultProperties.Log.pattern);
-        }
-
-        if (dateTimeFormat != null) {
-            logRecord.setDateTimeFormat(dateTimeFormat);
-        } else {
-            logRecord.setDateTimeFormat(DefaultProperties.Log.dateTime);
-        }
+        /*TODO: 하기 임시, 경로가 없으면 로그 파일 쓰기없는 것으로 상정*/
+        logRecord.setLogFileName(logFileName != null ? logFileName : DefaultProperties.Log.fileName);
+        logRecord.setLogPattern(logPattern != null ? logPattern : DefaultProperties.Log.pattern);
+        logRecord.setDateTimeFormat(dateTimeFormat != null ? dateTimeFormat : DefaultProperties.Log.dateTime);
 
         final String logResult = logRecord.buildLog();
         logRecord.writeConsole(logResult);
-        logRecord.writeLogFile(logResult);
+        if (absolutePath != null) logRecord.writeLogFile(logResult);
     }
 
-    protected void logStackTrace(int level, Exception e) {
-        e.printStackTrace(System.err);
-    }
-
-    private synchronized void writeConsole(final String logResult) {
+    private void writeConsole(final String logResult) {
         try {
             new PrintStream(System.out, true, "UTF-8").print(logResult);
         } catch (UnsupportedEncodingException e) {
@@ -122,7 +104,7 @@ public class LogRecord {
         }
     }
 
-    private synchronized void writeLogFile(String logResult) {
+    private void writeLogFile(String logResult) {
         final File currentLogFile = new File(absolutePath + File.separator + logFileName + ".log");
         if (currentLogFile.exists()) {
             final String lastLogDateFormat = new SimpleDateFormat("_yyyyMMdd")
@@ -158,8 +140,7 @@ public class LogRecord {
                 .replace("#level", String.valueOf(level.prefix()))
                 .replace("#dateTime", dateformat)
                 .replace("#msg", logMsg)
-                .replace("#nextLine", DefaultProperties.TEXT_NEXT_LINE)
-                ;
+                .replace("#nextLine", DefaultProperties.TEXT_NEXT_LINE);
 
         if (arguments != null && arguments.length > 0) {
             final int alternateCount = (logMsg.length() - logMsg.replace("{}", "").length()) / 2;
