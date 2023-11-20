@@ -6,10 +6,7 @@ import com.vigfoot.config.ValueObject;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ClassScanner {
 
@@ -21,12 +18,12 @@ public class ClassScanner {
         return classList;
     }
 
-    List<ValueObject.LogConfig> filterDeclaredLogClass() {
+    Map<String, ValueObject.LogConfig> filterDeclaredLogClass() {
         final List<Class<?>> scan = scanUserAllClass();
-        final List<ValueObject.LogConfig> classList = new ArrayList<ValueObject.LogConfig>();
+        final Map<String, ValueObject.LogConfig> classList = new HashMap<String, ValueObject.LogConfig>();
         for (Class<?> clazz : scan) {
             final ValueObject.LogConfig logConfig = filterDeclaredLogAnnotation(clazz);
-            if (logConfig != null) classList.add(logConfig);
+            if (logConfig != null) classList.put(logConfig.getClazz().getName() ,logConfig);
         }
         return classList;
     }

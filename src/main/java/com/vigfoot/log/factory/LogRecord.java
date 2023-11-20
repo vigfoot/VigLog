@@ -2,25 +2,41 @@ package com.vigfoot.log.factory;
 
 import com.vigfoot.V;
 import com.vigfoot.config.DefaultProperties;
+import com.vigfoot.config.ValueObject;
 import com.vigfoot.exception.VigLogException;
+import com.vigfoot.log.LogManager;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class LogRecord {
+public class LogRecord extends Thread {
 
-    private static LogRecord logRecord;
+    public enum Level {
+        ZERO("L0"), ONE("L1"), TWO("L2"), THREE("L3"), FOUR("L4"), FIVE("L5"), SIX("L6"), SEVEN("L7"), EIGHT("L8"), NINE("L9");
+
+        final String prefix;
+
+        Level(String prefix) {
+            this.prefix = prefix;
+        }
+
+        public String prefix() {
+            return prefix;
+        }
+    }
+
     private String logMsg;
     private Object[] arguments;
     private FileWriter fileWriter;
     private String absolutePath;
     private String logFileName;
-    private boolean useLogFile;
     private String logPattern;
     private String dateTimeFormat;
-    private V.Level level;
     private long currentTimeMillis;
+    private Level level;
+    private Level defaultLevel;
+
 
     public void setLogMsg(String logMsg) {
         this.logMsg = logMsg;
@@ -34,10 +50,6 @@ public class LogRecord {
         this.arguments = arguments;
     }
 
-    public void setAbsolutePath(String absolutePath) {
-        this.absolutePath = absolutePath;
-    }
-
     public void setDateTimeFormat(String dateTimeFormat) {
         this.dateTimeFormat = dateTimeFormat;
     }
@@ -46,8 +58,9 @@ public class LogRecord {
         this.currentTimeMillis = currentTimeMillis;
     }
 
-    public void setLogFileName(String logFileName) {
+    public void setLogFileWriter(String absolutePath, String logFileName) {
         try {
+            this.absolutePath = absolutePath;
             this.logFileName = logFileName;
             this.fileWriter = new FileWriter(absolutePath + File.separator + logFileName + ".log", true);
         } catch (IOException e) {
@@ -55,45 +68,70 @@ public class LogRecord {
         }
     }
 
-    public void setLevel(V.Level level) {
+    public void setLevel(Level level) {
         this.level = level;
+    }
+
+    protected void setDefaultLevel(Level defaultLevel) {
+        this.defaultLevel = defaultLevel;
     }
 
     private LogRecord() {
     }
 
-    public static void writeLog(V.Level level, String logPrefix, Object[] arguments) {
-        LogRecord.writeLog(level, logPrefix, arguments, null, null, null, null);
+
+    @Override
+    public void run() {
+        final String logResult = buildLog();
+        writeConsole(logResult);
+        if (absolutePath != null) writeLogFile(logResult);
     }
 
-    public static void writeLog(V.Level level, String logPrefix, Object[] arguments, String absolutePath, String logFileName, String logPattern, String dateTimeFormat) {
-        if (LogRecord.logRecord == null)
-            LogRecord.logRecord = new LogRecord();
+    public static void writeLog(Level level, String logMsg, Object[] arguments) {
+        final LogRecord logRecord = getLogRecord();
+        if (!logRecord.isUpperLogLevel(level)) return;
 
-        logRecord.setLogMsg(logPrefix);
+        logRecord.setLevel(level);
+        logRecord.setLogMsg(logMsg);
         logRecord.setArguments(arguments);
         logRecord.setCurrentTimeMillis(System.currentTimeMillis());
-        logRecord.setLevel(level != null?level:DefaultProperties.Log.level);
 
-        if (absolutePath != null) {
-            logRecord.setAbsolutePath(absolutePath);
-//            logRecord.setLogFileName(logFileName != null ? logFileName : DefaultProperties.Log.fileName);
-//            logRecord.setLogPattern(logPattern != null ? logPattern : DefaultProperties.Log.pattern);
-//            logRecord.setDateTimeFormat(dateTimeFormat != null ? dateTimeFormat : DefaultProperties.Log.dateTime);
+        LogManager.getPool().execute(logRecord);
+    }
+
+    public static LogRecord getLogRecord() {
+        return getLogRecord(null, null, null, null, null);
+    }
+
+    public static LogRecord getLogRecord(Level defaultLevel, String logPattern, String dateTimeFormat, String absolutePath, String logFileName) {
+        LogRecord logRecord;
+        final ValueObject.LogConfig classConfig = LogManager.getClassConfig(getCallerClassName());
+
+        if (classConfig == null) {
+            logRecord = new LogRecord();
+            logRecord.setDefaultLevel(defaultLevel);
+            logRecord.setLogPattern(logPattern != null ? logPattern : DefaultProperties.Log.pattern);
+            logRecord.setDateTimeFormat(dateTimeFormat != null ? dateTimeFormat : DefaultProperties.Log.dateTime);
+
+            if (absolutePath != null && absolutePath.trim().length() != 0) { // TODO: master config 파일로 연동 필요
+                logRecord.setLogFileWriter(absolutePath, logFileName != null ? logFileName : DefaultProperties.Log.fileName);
+            }
 
         } else {
-            logRecord.setAbsolutePath(DefaultProperties.USER_DIRECTORY);
+            logRecord = classConfig.getLogRecord();
 
         }
+        return logRecord;
+    }
 
-        /*TODO: 하기 임시, 경로가 없으면 로그 파일 쓰기없는 것으로 상정*/
-        logRecord.setLogFileName(logFileName != null ? logFileName : DefaultProperties.Log.fileName);
-        logRecord.setLogPattern(logPattern != null ? logPattern : DefaultProperties.Log.pattern);
-        logRecord.setDateTimeFormat(dateTimeFormat != null ? dateTimeFormat : DefaultProperties.Log.dateTime);
+    public static String getCallerClassName() {
+        for (int i = 0; i < new Throwable().getStackTrace().length; i++) {
+            final String className = new Throwable().getStackTrace()[i].getClassName();
+            if (className.contains("com.vigfoot.log.factory")) continue;
 
-        final String logResult = logRecord.buildLog();
-        logRecord.writeConsole(logResult);
-        if (absolutePath != null) logRecord.writeLogFile(logResult);
+            return className;
+        }
+        return null;
     }
 
     private void writeConsole(final String logResult) {
@@ -165,5 +203,9 @@ public class LogRecord {
         }
 
         return msgTemplate;
+    }
+
+    private boolean isUpperLogLevel(Level logLevel) {
+        return logLevel.ordinal() >= this.defaultLevel.ordinal();
     }
 }

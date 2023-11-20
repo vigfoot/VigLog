@@ -1,6 +1,7 @@
 package com.vigfoot.config;
 
 import com.vigfoot.V;
+import com.vigfoot.log.factory.LogRecord;
 
 public class DefaultProperties {
 
@@ -15,7 +16,6 @@ public class DefaultProperties {
         public static String pattern = "[#level #dateTime] #msg#nextLine";
         public static String dateTime = "yyyy-MM-dd HH:mm:ss";
         public static String fileName = "viglog";
-        public static V.Level level = V.Level.ZERO;
-
+        public static LogRecord.Level level = LogRecord.Level.ZERO;
     }
 }
