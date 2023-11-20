@@ -1,20 +1,21 @@
 package com.vigfoot.log.factory;
 
+import com.vigfoot.config.DefaultProperties;
 import com.vigfoot.exception.VigLogException;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class LogRecord extends Thread{
+public class LogRecord extends Thread {
 
     private static LogRecord logRecord;
 
     private String logPrefix;
     private Object[] arguments;
     private FileWriter fileWriter;
-    private static String absolutePath;
-    private static String logFileName;
+    private String absolutePath;
+    private String logFileName;
 
     public void setLogPrefix(String logPrefix) {
         this.logPrefix = logPrefix;
@@ -22,6 +23,46 @@ public class LogRecord extends Thread{
 
     public void setArguments(Object[] arguments) {
         this.arguments = arguments;
+    }
+
+    public void setAbsolutePath(String absolutePath) {
+        this.absolutePath = absolutePath;
+    }
+
+    public void setLogFileName(String logFileName) {
+        this.logFileName = logFileName;
+    }
+
+    private LogRecord() {
+    }
+
+    public static void writeLog(String logPrefix, Object[] arguments) {
+        LogRecord.writeLog(logPrefix, arguments, null, null);
+    }
+
+    public static void writeLog(String logPrefix, Object[] arguments, String absolutePath, String logFileName) {
+        if (LogRecord.logRecord == null){
+            LogRecord.logRecord = new LogRecord();
+            LogRecord.logRecord.setDaemon(true);
+            LogRecord.logRecord.setName(DefaultProperties.THREAD_NAME);
+        }
+
+        logRecord.setLogPrefix(logPrefix);
+        logRecord.setArguments(arguments);
+
+        if (absolutePath != null) {
+            logRecord.setAbsolutePath(absolutePath);
+        } else {
+            logRecord.setAbsolutePath(absolutePath);
+        }
+
+        if (logFileName != null) {
+            logRecord.setLogFileName(logFileName);
+        } else {
+            logRecord.setLogFileName(logFileName);
+        }
+
+        LogRecord.logRecord.start();
     }
 
     @Override
@@ -32,9 +73,7 @@ public class LogRecord extends Thread{
     }
 
     protected void logStackTrace(int level, Exception e) {
-//        e.printStackTrace(System.err);
-//        writeConsole(logResult);
-//        writeLogFile(logResult);
+        e.printStackTrace(System.err);
     }
 
     private synchronized void writeConsole(final String logResult) {
@@ -45,7 +84,7 @@ public class LogRecord extends Thread{
         }
     }
 
-    private synchronized void writeLogFile(final String logResult) {
+    private synchronized void writeLogFile(String logResult) {
         File currentLogFile = new File(absolutePath + File.separator + logFileName);
         final String lastLogDateFormat = new SimpleDateFormat("_yyyyMMdd")
                 .format(new Date(currentLogFile.lastModified()));

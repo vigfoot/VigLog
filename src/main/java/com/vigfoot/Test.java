@@ -1,6 +1,6 @@
 package com.vigfoot;
 
-@VigLog
+@VigLog(logFileName = "hi")
 public class Test {
 
     public static void main(String[] args) {

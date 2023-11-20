@@ -1,6 +1,8 @@
 package com.vigfoot.log;
 
-import com.vigfoot.config.DefaultConfiguration;
+import com.vigfoot.VigLog;
+import com.vigfoot.config.DefaultProperties;
+import com.vigfoot.config.ValueObject;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -12,34 +14,39 @@ public class ClassScanner {
 
     List<Class<?>> scanUserAllClass() {
         final List<Class<?>> classList = new ArrayList<Class<?>>();
-        final File[] files = deepScanClassFile(DefaultConfiguration.USER_DIRECTORY);
+        final File[] files = deepScanClassFile(DefaultProperties.USER_DIRECTORY);
         for (File file : files) classList.add(collectClass(file));
 
         return classList;
     }
 
-    List<Class<?>> filterDeclaredLogAnnotation() {
+    List<ValueObject.LogConfig> filterDeclaredLogClass() {
         final List<Class<?>> scan = scanUserAllClass();
-        final List<Class<?>> classList = new ArrayList<Class<?>>();
+        final List<ValueObject.LogConfig> classList = new ArrayList<ValueObject.LogConfig>();
         for (Class<?> clazz : scan) {
-            final Annotation[] declaredAnnotations = clazz.getDeclaredAnnotations();
-            for (Annotation annotation : declaredAnnotations) {
-                if (DefaultConfiguration.LOG_PACKAGE.equals(annotation.annotationType().getName())) {
-                    classList.add(clazz);
-                    break;
-                }
-            }
+            final ValueObject.LogConfig logConfig = filterDeclaredLogAnnotation(clazz);
+            if (logConfig != null) classList.add(logConfig);
         }
         return classList;
     }
 
+    public static ValueObject.LogConfig filterDeclaredLogAnnotation(Class<?> clazz) {
+        final Annotation[] declaredAnnotations = clazz.getDeclaredAnnotations();
+        for (Annotation annotation : declaredAnnotations) {
+            if (DefaultProperties.LOG_PACKAGE.equals(annotation.annotationType().getName())) {
+                return new ValueObject.LogConfig(clazz, annotation.annotationType().getAnnotation(VigLog.class));
+            }
+        }
+        return null;
+    }
+
     private Class<?> collectClass(File file) {
-        for (String classpath : DefaultConfiguration.CLASS_PATH_LIST) {
+        for (String classpath : DefaultProperties.CLASS_PATH_LIST) {
             if (!file.getAbsolutePath().contains(classpath)) continue;
             String className = file.getAbsolutePath()
                     .replace(classpath, "")
                     .replace(".class", "")
-                    .replace(DefaultConfiguration.FILE_SEPARATOR, ".");
+                    .replace(DefaultProperties.FILE_SEPARATOR, ".");
 
             className = className.indexOf(".") == 0 ? className.substring(1) : className;
             try {

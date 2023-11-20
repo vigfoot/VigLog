@@ -13,15 +13,12 @@ public class Logger implements LogInterface {
 
     }
 
-    private final LogRecord logRecord = new LogRecord();//logmanager로 대체 예정(thread관리)
     private int defaultLevel;
     private long systemTimeMillis;
 
     private void log(Level level, String log, Object... arguments) {
         if (!isUpperLogLevel(level.ordinal())) return;
-        logRecord.setLogPrefix(level.prefix + log);
-        logRecord.setArguments(arguments);
-        logRecord.start();
+        LogRecord.writeLog(level.prefix + log, arguments);
     }
 
     private String getCallerClassName() {
