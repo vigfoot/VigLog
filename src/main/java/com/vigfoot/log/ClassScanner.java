@@ -7,6 +7,7 @@ import com.vigfoot.config.ValueObject;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,13 +32,8 @@ public class ClassScanner {
     }
 
     public static ValueObject.LogConfig filterDeclaredLogAnnotation(Class<?> clazz) {
-        final Annotation[] declaredAnnotations = clazz.getDeclaredAnnotations();
-        for (Annotation annotation : declaredAnnotations) {
-            if (DefaultProperties.LOG_PACKAGE.equals(annotation.annotationType().getName())) {
-                return new ValueObject.LogConfig(clazz, annotation.annotationType().getAnnotation(VigLog.class));
-            }
-        }
-        return null;
+        final VigLog annotation = clazz.getAnnotation(VigLog.class);
+        return annotation != null ? new ValueObject.LogConfig(clazz, annotation) : null;
     }
 
     private Class<?> collectClass(File file) {

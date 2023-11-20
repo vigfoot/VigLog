@@ -9,10 +9,7 @@ public class LogManager {
     public void config() {
         final List<ValueObject.LogConfig> classes = new ClassScanner().filterDeclaredLogClass();
         for (ValueObject.LogConfig clazz : classes) {
-            System.out.println(clazz);
-
+            System.out.println(clazz.getVigLog());
         }
     }
-
-
 }
