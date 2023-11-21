@@ -28,9 +28,9 @@ public class LogManager {
     protected static void registerClasConfig(String className, ValueObject.LogConfig classConfig) {
         final VigLog config = classConfig.getVigLog();
         final String pattern = config.pattern();
-        final String logFileName = config.logFileName();
-        final int logLevel = config.logLevel() > 9 ? 0 : config.logLevel();
-        final String logFilePath = config.logFilePath();
+        final String logFileName = config.fileName();
+        final int logLevel = config.level() > 9 ? 0 : config.level();
+        final String logFilePath = config.filePath();
         final String dateTime = config.dateTime();
 
         final LogRecord.Level level = LogRecord.Level.values()[logLevel];
