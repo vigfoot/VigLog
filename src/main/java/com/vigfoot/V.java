@@ -2,6 +2,7 @@ package com.vigfoot;
 
 import com.vigfoot.log.factory.LogRecord;
 
+@VigLog
 public class V {
 
     private V() {

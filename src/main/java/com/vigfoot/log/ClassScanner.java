@@ -10,15 +10,18 @@ import java.util.*;
 
 public class ClassScanner {
 
-    List<Class<?>> scanUserAllClass() {
+    static List<Class<?>> scanUserAllClass() {
         final List<Class<?>> classList = new ArrayList<Class<?>>();
         final File[] files = deepScanClassFile(DefaultProperties.USER_DIRECTORY);
-        for (File file : files) classList.add(collectClass(file));
+        for (File file : files) {
+            final Class<?> aClass = collectClass(file);
+            if (aClass != null) classList.add(aClass);
+        }
 
         return classList;
     }
 
-    Map<String, ValueObject.LogConfig> filterDeclaredLogClass() {
+    static Map<String, ValueObject.LogConfig> filterDeclaredLogClass() {
         final List<Class<?>> scan = scanUserAllClass();
         final Map<String, ValueObject.LogConfig> classList = new HashMap<String, ValueObject.LogConfig>();
         for (Class<?> clazz : scan) {
@@ -28,12 +31,12 @@ public class ClassScanner {
         return classList;
     }
 
-    public static ValueObject.LogConfig filterDeclaredLogAnnotation(Class<?> clazz) {
+    protected static ValueObject.LogConfig filterDeclaredLogAnnotation(Class<?> clazz) {
         final VigLog annotation = clazz.getAnnotation(VigLog.class);
         return annotation != null ? new ValueObject.LogConfig(clazz, annotation) : null;
     }
 
-    private Class<?> collectClass(File file) {
+    private static Class<?> collectClass(File file) {
         for (String classpath : DefaultProperties.CLASS_PATH_LIST) {
             if (!file.getAbsolutePath().contains(classpath)) continue;
             String className = file.getAbsolutePath()
@@ -50,11 +53,11 @@ public class ClassScanner {
         return null;
     }
 
-    private File[] deepScanClassFile(String parentName) {
+    private static File[] deepScanClassFile(String parentName) {
         return deepScanClassFile(new File(parentName));
     }
 
-    private File[] deepScanClassFile(File... parents) {
+    private static File[] deepScanClassFile(File... parents) {
         if (parents == null || parents.length == 0) return null;
         final List<File> scanFiles = new ArrayList<File>();
         for (File parent : parents) {

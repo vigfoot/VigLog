@@ -105,16 +105,17 @@ public class LogRecord extends Thread {
 
     public static LogRecord getLogRecord(Level defaultLevel, String logPattern, String dateTimeFormat, String absolutePath, String logFileName) {
         LogRecord logRecord;
-        final ValueObject.LogConfig classConfig = LogManager.getClassConfig(getCallerClassName());
+        final String callerClassName = getCallerClassName();
+        ValueObject.LogConfig classConfig = LogManager.getClassConfig(callerClassName);
 
         if (classConfig == null) {
             logRecord = new LogRecord();
             logRecord.setDefaultLevel(defaultLevel);
-            logRecord.setLogPattern(logPattern != null ? logPattern : DefaultProperties.Log.pattern);
-            logRecord.setDateTimeFormat(dateTimeFormat != null ? dateTimeFormat : DefaultProperties.Log.dateTime);
+            logRecord.setLogPattern(logPattern);
+            logRecord.setDateTimeFormat(dateTimeFormat);
 
             if (absolutePath != null && absolutePath.trim().length() != 0) { // TODO: master config 파일로 연동 필요
-                logRecord.setLogFileWriter(absolutePath, logFileName != null ? logFileName : DefaultProperties.Log.fileName);
+                logRecord.setLogFileWriter(absolutePath, logFileName != null ? logFileName : DefaultProperties.LOG_NAME);
             }
 
         } else {
@@ -125,9 +126,10 @@ public class LogRecord extends Thread {
     }
 
     public static String getCallerClassName() {
-        for (int i = 0; i < new Throwable().getStackTrace().length; i++) {
-            final String className = new Throwable().getStackTrace()[i].getClassName();
-            if (className.contains("com.vigfoot.log.factory")) continue;
+        final StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            final String className = stackTraceElement.getClassName();
+            if (className.contains("com.vigfoot") && !className.toLowerCase().contains("test")/*TODO 테스트 임시*/) continue;
 
             return className;
         }
@@ -178,7 +180,7 @@ public class LogRecord extends Thread {
                 .replace("#level", String.valueOf(level.prefix()))
                 .replace("#dateTime", dateformat)
                 .replace("#msg", logMsg)
-                .replace("#nextLine", DefaultProperties.TEXT_NEXT_LINE);
+                .replace("#newLine", DefaultProperties.TEXT_NEXT_LINE);
 
         if (arguments != null && arguments.length > 0) {
             final int alternateCount = (logMsg.length() - logMsg.replace("{}", "").length()) / 2;
