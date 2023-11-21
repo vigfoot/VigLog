@@ -1,5 +1,6 @@
 package com.vigfoot.log.factory;
 
+import com.vigfoot.log.V;
 import com.vigfoot.log.VigLog;
 import com.vigfoot.log.config.DefaultProperties;
 import com.vigfoot.log.config.ValueObject;
@@ -27,6 +28,10 @@ public class ClassScanner {
             final ValueObject.LogConfig logConfig = filterDeclaredLogAnnotation(clazz);
             if (logConfig != null) classList.put(logConfig.getClazz().getName() ,logConfig);
         }
+
+        final ValueObject.LogConfig logConfig = filterDeclaredLogAnnotation(V.class);
+        classList.put(logConfig.getClazz().getName() ,logConfig);
+
         return classList;
     }
 
