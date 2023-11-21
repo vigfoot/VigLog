@@ -1,6 +1,5 @@
 package com.vigfoot.log.factory;
 
-import com.vigfoot.log.V;
 import com.vigfoot.log.VigLog;
 import com.vigfoot.log.config.DefaultProperties;
 import com.vigfoot.log.config.ValueObject;
