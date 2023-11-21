@@ -99,7 +99,7 @@ public class LogRecord implements Runnable {
         final String callerClassName = getCallerClassName();
         ValueObject.LogConfig classConfig = LogManager.getClassConfig(callerClassName);
         if (classConfig == null) {
-            classConfig = LogManager.getClassConfig(DefaultProperties.VIGLOG_CLASS_NAME);
+            classConfig = LogManager.getClassConfig(DefaultProperties.logManagerClass.getName());
             LogManager.registerClasConfig(callerClassName, classConfig);
         }
 

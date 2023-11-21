@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@VigLog
 public class LogManager {
 
     protected static Map<String, ValueObject.LogConfig> logConfigMap = new HashMap<String, ValueObject.LogConfig>();
@@ -39,7 +40,7 @@ public class LogManager {
     }
 
     public static ValueObject.LogConfig getClassConfig(String className) {
-        return logConfigMap.get(className != null ? className : DefaultProperties.VIGLOG_CLASS_NAME);
+        return logConfigMap.get(className != null ? className : DefaultProperties.logManagerClass);
     }
 
     public static ExecutorService getPool() {

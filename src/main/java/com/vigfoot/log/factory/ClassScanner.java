@@ -10,6 +10,7 @@ import java.util.*;
 
 public class ClassScanner {
 
+    private static List<Class<?>> scan;
     static List<Class<?>> scanUserAllClass() {
         final List<Class<?>> classList = new ArrayList<Class<?>>();
         final File[] files = deepScanClassFile(DefaultProperties.USER_DIRECTORY);
@@ -22,20 +23,35 @@ public class ClassScanner {
     }
 
     static Map<String, ValueObject.LogConfig> filterDeclaredLogClass() {
-        final List<Class<?>> scan = scanUserAllClass();
+        scan = scanUserAllClass();
+
         final Map<String, ValueObject.LogConfig> classList = new HashMap<String, ValueObject.LogConfig>();
         for (Class<?> clazz : scan) {
             final ValueObject.LogConfig logConfig = filterDeclaredLogAnnotation(clazz);
             if (logConfig != null) classList.put(logConfig.getClazz().getName() ,logConfig);
         }
 
-        final ValueObject.LogConfig logConfig = filterDeclaredLogAnnotation(V.class);
+        final Class<?> userConfigClass = scanUserConfigClass(scan);
+        if (userConfigClass != null){
+            final ValueObject.LogConfig logConfig = filterDeclaredLogAnnotation(userConfigClass);
+            classList.put(userConfigClass.getName() ,logConfig);
+
+        }
+
+        final ValueObject.LogConfig logConfig = filterDeclaredLogAnnotation(DefaultProperties.logManagerClass);
         classList.put(logConfig.getClazz().getName() ,logConfig);
 
         return classList;
     }
+    static Class<?> scanUserConfigClass(List<Class<?>> classes){
+        for (Class<?> clazz : classes) {
+            if (DefaultProperties.logManagerClass.getName().equals(clazz.getSuperclass().getName()))
+                return clazz;
+        }
+        return null;
+    }
 
-    protected static ValueObject.LogConfig filterDeclaredLogAnnotation(Class<?> clazz) {
+    private static ValueObject.LogConfig filterDeclaredLogAnnotation(Class<?> clazz) {
         final VigLog annotation = clazz.getAnnotation(VigLog.class);
         return annotation != null ? new ValueObject.LogConfig(clazz, annotation) : null;
     }
