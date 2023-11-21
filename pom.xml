@@ -6,6 +6,26 @@
     <groupId>com.vigfoot</groupId>
     <artifactId>viglog</artifactId>
     <version>1.0(BETA)</version>
+    <description>Simple, Easy Logging</description>
+
+    <scm>
+        <url>https://github.com/vigfoot/viglog.git</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/license/mit</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>vigfoot</name>
+            <url>https://vigfoot.com</url>
+            <email>dev.vigfoot@gmail.com</email>
+        </developer>
+    </developers>
 
     <properties>
         <maven.compiler.source>5</maven.compiler.source>
