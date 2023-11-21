@@ -2,6 +2,7 @@ package com.vigfoot.log;
 
 import java.lang.annotation.*;
 
+@Inherited
 @Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
