@@ -18,8 +18,9 @@ public class LogManager {
     static {
         final Map<String, ValueObject.LogConfig> declaredLogClass = ClassScanner.filterDeclaredLogClass();
         pool = Executors.newSingleThreadExecutor();
-        for (ValueObject.LogConfig logConfig : declaredLogClass.values()) {
-            final String className = logConfig.getClazz().getName();
+        for (Map.Entry<String, ValueObject.LogConfig> configEntry : declaredLogClass.entrySet()) {
+            final String className = configEntry.getKey();
+            final ValueObject.LogConfig logConfig = configEntry.getValue();
             registerClasConfig(className, logConfig);
         }
     }

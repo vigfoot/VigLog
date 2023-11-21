@@ -11,6 +11,7 @@ import java.util.*;
 public class ClassScanner {
 
     private static List<Class<?>> scan;
+
     static List<Class<?>> scanUserAllClass() {
         final List<Class<?>> classList = new ArrayList<Class<?>>();
         final File[] files = deepScanClassFile(DefaultProperties.USER_DIRECTORY);
@@ -28,22 +29,25 @@ public class ClassScanner {
         final Map<String, ValueObject.LogConfig> classList = new HashMap<String, ValueObject.LogConfig>();
         for (Class<?> clazz : scan) {
             final ValueObject.LogConfig logConfig = filterDeclaredLogAnnotation(clazz);
-            if (logConfig != null) classList.put(logConfig.getClazz().getName() ,logConfig);
+            if (logConfig != null) classList.put(logConfig.getClazz().getName(), logConfig);
         }
 
         final Class<?> userConfigClass = scanUserConfigClass(scan);
-        if (userConfigClass != null){
+        if (userConfigClass != null) {
             final ValueObject.LogConfig logConfig = filterDeclaredLogAnnotation(userConfigClass);
-            classList.put(userConfigClass.getName() ,logConfig);
-
+            if (logConfig != null) {
+                classList.put(DefaultProperties.logManagerClass.getName(), logConfig);
+                return classList;
+            }
         }
 
         final ValueObject.LogConfig logConfig = filterDeclaredLogAnnotation(DefaultProperties.logManagerClass);
-        classList.put(logConfig.getClazz().getName() ,logConfig);
+        classList.put(logConfig.getClazz().getName(), logConfig);
 
         return classList;
     }
-    static Class<?> scanUserConfigClass(List<Class<?>> classes){
+
+    static Class<?> scanUserConfigClass(List<Class<?>> classes) {
         for (Class<?> clazz : classes) {
             if (DefaultProperties.logManagerClass.getName().equals(clazz.getSuperclass().getName()))
                 return clazz;
