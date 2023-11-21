@@ -7,8 +7,9 @@ import com.vigfoot.log.exception.VigLogException;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
 
-public class LogRecord extends Thread {
+public class LogRecord implements Runnable {
 
     public enum Level {
         ZERO("L0"), ONE("L1"), TWO("L2"), THREE("L3"), FOUR("L4"), FIVE("L5"), SIX("L6"), SEVEN("L7"), EIGHT("L8"), NINE("L9");

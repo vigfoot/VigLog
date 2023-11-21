@@ -16,7 +16,7 @@ public class LogManager {
 
     static {
         final Map<String, ValueObject.LogConfig> declaredLogClass = ClassScanner.filterDeclaredLogClass();
-        pool = Executors.newFixedThreadPool(declaredLogClass.keySet().size());
+        pool = Executors.newSingleThreadExecutor();
         for (ValueObject.LogConfig logConfig : declaredLogClass.values()) {
             final String className = logConfig.getClazz().getName();
             registerClasConfig(className, logConfig);
@@ -36,7 +36,6 @@ public class LogManager {
         classConfig.setLogRecord(logRecord);
 
         logConfigMap.put(className, classConfig);
-        pool.execute(classConfig.getLogRecord());
     }
 
     public static ValueObject.LogConfig getClassConfig(String className) {
