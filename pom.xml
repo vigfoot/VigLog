@@ -5,20 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.vigfoot</groupId>
-    <artifactId>VigLog</artifactId>
+    <artifactId>viglog</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>5</maven.compiler.source>
+        <maven.compiler.target>5</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <dependencies>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.8.1</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 </project>

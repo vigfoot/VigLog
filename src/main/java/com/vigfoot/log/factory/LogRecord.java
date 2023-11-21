@@ -77,8 +77,6 @@ public class LogRecord implements Runnable {
     private LogRecord() {
     }
 
-
-    @Override
     public void run() {
         final String logResult = buildLog();
         writeConsole(logResult);
