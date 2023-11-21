@@ -7,6 +7,7 @@
     <artifactId>viglog</artifactId>
     <version>1.0(BETA)</version>
     <description>Simple, Easy Logging</description>
+    <url>https://vigfoot.com/library/viglog</url>
 
     <scm>
         <url>https://github.com/vigfoot/viglog.git</url>
