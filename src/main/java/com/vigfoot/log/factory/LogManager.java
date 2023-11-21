@@ -16,7 +16,7 @@ public class LogManager {
     protected static ExecutorService pool;
 
     static {
-        final Map<String, ValueObject.LogConfig> declaredLogClass = ClassScanner.filterDeclaredLogClass();
+        final Map<String, ValueObject.LogConfig> declaredLogClass = ClassScanner.getInstance().filterDeclaredLogClass();
         pool = Executors.newSingleThreadExecutor();
         for (Map.Entry<String, ValueObject.LogConfig> configEntry : declaredLogClass.entrySet()) {
             final String className = configEntry.getKey();
@@ -33,7 +33,7 @@ public class LogManager {
         final String logFilePath = config.filePath();
         final String dateTime = config.dateTime();
 
-        final LogRecord.Level level = LogRecord.Level.values()[logLevel];
+        final LogRecord.LEVEL level = LogRecord.LEVEL.values()[logLevel];
         final LogRecord logRecord = LogRecord.getLogRecord(level, pattern, dateTime, logFilePath, logFileName);
         classConfig.setLogRecord(logRecord);
 
@@ -41,7 +41,7 @@ public class LogManager {
     }
 
     public static ValueObject.LogConfig getClassConfig(String className) {
-        return logConfigMap.get(className != null ? className : DefaultProperties.logManagerClass);
+        return logConfigMap.get(className != null ? className : DefaultProperties.logManagerClass.getName());
     }
 
     public static ExecutorService getPool() {

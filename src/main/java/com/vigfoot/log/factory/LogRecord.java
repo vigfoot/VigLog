@@ -10,18 +10,8 @@ import java.util.Date;
 
 public class LogRecord implements Runnable {
 
-    public enum Level {
-        ZERO("L0"), ONE("L1"), TWO("L2"), THREE("L3"), FOUR("L4"), FIVE("L5"), SIX("L6"), SEVEN("L7"), EIGHT("L8"), NINE("L9");
-
-        final String prefix;
-
-        Level(String prefix) {
-            this.prefix = prefix;
-        }
-
-        public String prefix() {
-            return prefix;
-        }
+    public enum LEVEL {
+        ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE;
     }
 
     private String logMsg;
@@ -32,8 +22,8 @@ public class LogRecord implements Runnable {
     private String logPattern;
     private String dateTimeFormat;
     private Long currentTimeMillis;
-    private Level level;
-    private Level defaultLevel;
+    private LEVEL level;
+    private LEVEL defaultLevel;
 
 
     public void setLogMsg(String logMsg) {
@@ -66,11 +56,11 @@ public class LogRecord implements Runnable {
         }
     }
 
-    public void setLevel(Level level) {
+    public void setLevel(LEVEL level) {
         this.level = level;
     }
 
-    protected void setDefaultLevel(Level defaultLevel) {
+    protected void setDefaultLevel(LEVEL defaultLevel) {
         this.defaultLevel = defaultLevel;
     }
 
@@ -83,7 +73,7 @@ public class LogRecord implements Runnable {
         if (absolutePath != null) writeLogFile(logResult);
     }
 
-    public static void writeLog(Level level, String logMsg, Object[] arguments) {
+    public static void writeLog(LEVEL level, String logMsg, Object[] arguments) {
         final LogRecord logRecord = getLogRecord();
         if (!logRecord.isUpperLogLevel(level)) return;
 
@@ -106,7 +96,7 @@ public class LogRecord implements Runnable {
         return classConfig.getLogRecord();
     }
 
-    protected static LogRecord getLogRecord(Level defaultLevel, String logPattern, String dateTimeFormat, String absolutePath, String logFileName) {
+    protected static LogRecord getLogRecord(LEVEL defaultLevel, String logPattern, String dateTimeFormat, String absolutePath, String logFileName) {
         LogRecord logRecord;
         ValueObject.LogConfig classConfig = LogManager.getClassConfig(getCallerClassName());
 
@@ -181,7 +171,7 @@ public class LogRecord implements Runnable {
         String msgTemplate = logPattern;
 
         if (msgTemplate.contains("#level"))
-            msgTemplate = msgTemplate.replace("#level", String.valueOf(level.prefix()));
+            msgTemplate = msgTemplate.replace("#level", String.valueOf(level.ordinal()));
 
         if (msgTemplate.contains("#dateTime"))
             msgTemplate = msgTemplate.replace("#dateTime", dateformat);
@@ -216,8 +206,8 @@ public class LogRecord implements Runnable {
 
         return msgTemplate;
     }
-
-    private boolean isUpperLogLevel(Level logLevel) {
+    
+    private boolean isUpperLogLevel(LEVEL logLevel) {
         return logLevel.ordinal() >= this.defaultLevel.ordinal();
     }
 }

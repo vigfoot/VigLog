@@ -9,9 +9,20 @@ import java.util.*;
 
 public class ClassScanner {
 
+    private static ClassScanner classScanner;
     private static List<Class<?>> scan;
 
-    static List<Class<?>> scanUserAllClass() {
+    private ClassScanner() {
+    }
+
+    protected static ClassScanner getInstance(){
+        if (classScanner == null)
+            ClassScanner.classScanner = new ClassScanner();
+
+        return ClassScanner.classScanner;
+    }
+
+    List<Class<?>> scanUserAllClass() {
         final List<Class<?>> classList = new ArrayList<Class<?>>();
         final File[] files = deepScanClassFile(DefaultProperties.USER_DIRECTORY);
         for (File file : files) {
@@ -22,7 +33,7 @@ public class ClassScanner {
         return classList;
     }
 
-    static Map<String, ValueObject.LogConfig> filterDeclaredLogClass() {
+    Map<String, ValueObject.LogConfig> filterDeclaredLogClass() {
         scan = scanUserAllClass();
 
         final Map<String, ValueObject.LogConfig> classList = new HashMap<String, ValueObject.LogConfig>();
@@ -46,7 +57,7 @@ public class ClassScanner {
         return classList;
     }
 
-    static Class<?> scanUserConfigClass(List<Class<?>> classes) {
+    private Class<?> scanUserConfigClass(List<Class<?>> classes) {
         for (Class<?> clazz : classes) {
             if (DefaultProperties.logManagerClass.getName().equals(clazz.getSuperclass().getName()))
                 return clazz;
@@ -54,12 +65,12 @@ public class ClassScanner {
         return null;
     }
 
-    private static ValueObject.LogConfig filterDeclaredLogAnnotation(Class<?> clazz) {
+    private ValueObject.LogConfig filterDeclaredLogAnnotation(Class<?> clazz) {
         final VigLog annotation = clazz.getAnnotation(VigLog.class);
         return annotation != null ? new ValueObject.LogConfig(clazz, annotation) : null;
     }
 
-    private static Class<?> collectClass(File file) {
+    private Class<?> collectClass(File file) {
         for (String classpath : DefaultProperties.CLASS_PATH_LIST) {
             if (!file.getAbsolutePath().contains(classpath)) continue;
             String className = file.getAbsolutePath()
@@ -76,11 +87,11 @@ public class ClassScanner {
         return null;
     }
 
-    private static File[] deepScanClassFile(String parentName) {
+    private File[] deepScanClassFile(String parentName) {
         return deepScanClassFile(new File(parentName));
     }
 
-    private static File[] deepScanClassFile(File... parents) {
+    private File[] deepScanClassFile(File... parents) {
         if (parents == null || parents.length == 0) return null;
         final List<File> scanFiles = new ArrayList<File>();
         for (File parent : parents) {
