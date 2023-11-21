@@ -7,7 +7,6 @@ import com.vigfoot.log.exception.VigLogException;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.ExecutorService;
 
 public class LogRecord implements Runnable {
 
