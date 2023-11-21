@@ -1,11 +1,10 @@
-package com.vigfoot.log;
+package com.vigfoot.log.factory;
 
-import com.vigfoot.VigLog;
-import com.vigfoot.config.DefaultProperties;
-import com.vigfoot.config.ValueObject;
+import com.vigfoot.log.VigLog;
+import com.vigfoot.log.config.DefaultProperties;
+import com.vigfoot.log.config.ValueObject;
 
 import java.io.File;
-import java.lang.annotation.Annotation;
 import java.util.*;
 
 public class ClassScanner {

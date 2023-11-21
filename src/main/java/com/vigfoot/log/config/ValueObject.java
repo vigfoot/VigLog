@@ -1,6 +1,6 @@
-package com.vigfoot.config;
+package com.vigfoot.log.config;
 
-import com.vigfoot.VigLog;
+import com.vigfoot.log.VigLog;
 import com.vigfoot.log.factory.LogRecord;
 
 public class ValueObject {

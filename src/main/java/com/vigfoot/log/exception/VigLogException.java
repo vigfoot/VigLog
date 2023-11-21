@@ -1,4 +1,4 @@
-package com.vigfoot.exception;
+package com.vigfoot.log.exception;
 
 public class VigLogException extends RuntimeException {
 

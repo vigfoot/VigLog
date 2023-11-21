@@ -1,10 +1,8 @@
 package com.vigfoot.log.factory;
 
-import com.vigfoot.V;
-import com.vigfoot.config.DefaultProperties;
-import com.vigfoot.config.ValueObject;
-import com.vigfoot.exception.VigLogException;
-import com.vigfoot.log.LogManager;
+import com.vigfoot.log.config.DefaultProperties;
+import com.vigfoot.log.config.ValueObject;
+import com.vigfoot.log.exception.VigLogException;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -33,7 +31,7 @@ public class LogRecord extends Thread {
     private String logFileName;
     private String logPattern;
     private String dateTimeFormat;
-    private long currentTimeMillis;
+    private Long currentTimeMillis;
     private Level level;
     private Level defaultLevel;
 
@@ -54,7 +52,7 @@ public class LogRecord extends Thread {
         this.dateTimeFormat = dateTimeFormat;
     }
 
-    public void setCurrentTimeMillis(long currentTimeMillis) {
+    public void setCurrentTimeMillis(Long currentTimeMillis) {
         this.currentTimeMillis = currentTimeMillis;
     }
 
@@ -100,13 +98,19 @@ public class LogRecord extends Thread {
     }
 
     public static LogRecord getLogRecord() {
-        return getLogRecord(null, null, null, null, null);
-    }
-
-    public static LogRecord getLogRecord(Level defaultLevel, String logPattern, String dateTimeFormat, String absolutePath, String logFileName) {
-        LogRecord logRecord;
         final String callerClassName = getCallerClassName();
         ValueObject.LogConfig classConfig = LogManager.getClassConfig(callerClassName);
+        if (classConfig == null) {
+            classConfig = LogManager.getClassConfig(DefaultProperties.VIGLOG_CLASS_NAME);
+            LogManager.registerClasConfig(callerClassName, classConfig);
+        }
+
+        return classConfig.getLogRecord();
+    }
+
+    protected static LogRecord getLogRecord(Level defaultLevel, String logPattern, String dateTimeFormat, String absolutePath, String logFileName) {
+        LogRecord logRecord;
+        ValueObject.LogConfig classConfig = LogManager.getClassConfig(getCallerClassName());
 
         if (classConfig == null) {
             logRecord = new LogRecord();
@@ -114,7 +118,7 @@ public class LogRecord extends Thread {
             logRecord.setLogPattern(logPattern);
             logRecord.setDateTimeFormat(dateTimeFormat);
 
-            if (absolutePath != null && absolutePath.trim().length() != 0) { // TODO: master config 파일로 연동 필요
+            if (absolutePath != null && absolutePath.trim().length() != 0) {
                 logRecord.setLogFileWriter(absolutePath, logFileName != null ? logFileName : DefaultProperties.LOG_NAME);
             }
 
@@ -129,7 +133,7 @@ public class LogRecord extends Thread {
         final StackTraceElement[] stackTrace = new Throwable().getStackTrace();
         for (StackTraceElement stackTraceElement : stackTrace) {
             final String className = stackTraceElement.getClassName();
-            if (className.contains("com.vigfoot") && !className.toLowerCase().contains("test")/*TODO 테스트 임시*/) continue;
+            if (className.contains(DefaultProperties.LOG_PACKAGE)) continue;
 
             return className;
         }
@@ -176,11 +180,19 @@ public class LogRecord extends Thread {
 
     private String buildLog() {
         final String dateformat = new SimpleDateFormat(dateTimeFormat).format(new Date(currentTimeMillis));
-        String msgTemplate = logPattern
-                .replace("#level", String.valueOf(level.prefix()))
-                .replace("#dateTime", dateformat)
-                .replace("#msg", logMsg)
-                .replace("#newLine", DefaultProperties.TEXT_NEXT_LINE);
+        String msgTemplate = logPattern;
+
+        if (msgTemplate.contains("#level"))
+            msgTemplate = msgTemplate.replace("#level", String.valueOf(level.prefix()));
+
+        if (msgTemplate.contains("#dateTime"))
+            msgTemplate = msgTemplate.replace("#dateTime", dateformat);
+
+        if (msgTemplate.contains("#msg"))
+            msgTemplate = msgTemplate.replace("#msg", logMsg);
+
+        if (msgTemplate.contains("#newLine"))
+            msgTemplate = msgTemplate.replace("#newLine", DefaultProperties.TEXT_NEXT_LINE);
 
         if (arguments != null && arguments.length > 0) {
             final int alternateCount = (logMsg.length() - logMsg.replace("{}", "").length()) / 2;

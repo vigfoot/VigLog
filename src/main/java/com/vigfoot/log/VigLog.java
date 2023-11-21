@@ -1,4 +1,4 @@
-package com.vigfoot;
+package com.vigfoot.log;
 
 import java.lang.annotation.*;
 
