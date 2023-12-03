@@ -17,6 +17,7 @@ public class LogRecord implements Runnable {
     private String logMsg;
     private Object[] arguments;
     private FileWriter fileWriter;
+    private String fileDateFormat;
     private String absolutePath;
     private String logFileName;
     private String logPattern;
@@ -46,14 +47,9 @@ public class LogRecord implements Runnable {
         this.currentTimeMillis = currentTimeMillis;
     }
 
-    public void setLogFileWriter(String absolutePath, String logFileName) {
-        try {
-            this.absolutePath = absolutePath;
-            this.logFileName = logFileName;
-            this.fileWriter = new FileWriter(absolutePath + File.separator + logFileName + ".log", true);
-        } catch (IOException e) {
-            throw new VigLogException();
-        }
+    public void setLogFileFormat(String absolutePath, String logFileName) {
+        this.absolutePath = absolutePath;
+        this.logFileName = logFileName;
     }
 
     public void setLevel(LEVEL level) {
@@ -107,7 +103,7 @@ public class LogRecord implements Runnable {
             logRecord.setDateTimeFormat(dateTimeFormat);
 
             if (absolutePath != null && absolutePath.trim().length() != 0) {
-                logRecord.setLogFileWriter(absolutePath, logFileName != null ? logFileName : DefaultProperties.LOG_NAME);
+                logRecord.setLogFileFormat(absolutePath, logFileName != null ? logFileName : DefaultProperties.LOG_NAME);
             }
 
         } else {
@@ -139,19 +135,16 @@ public class LogRecord implements Runnable {
     private void writeLogFile(String logResult) {
         final String currentDateFormat = new SimpleDateFormat("_yyyyMMdd")
                 .format(new Date(currentTimeMillis));
-        final File currentLogFile = new File(absolutePath + File.separator + logFileName + currentDateFormat + ".log");
-        
         try {
-            fileWriter.write(logResult);
+            if (!currentDateFormat.equals(this.fileDateFormat)) {
+                this.fileDateFormat = currentDateFormat;
+                this.fileWriter = new FileWriter(this.absolutePath + File.separator + this.logFileName + currentDateFormat + ".log", true);
+            }
+
+            this.fileWriter.write(logResult);
+            this.fileWriter.flush();
         } catch (IOException e) {
             throw new VigLogException();
-        } finally {
-            try {
-                if (fileWriter != null) {
-                    fileWriter.flush();
-                }
-            } catch (IOException ignore) {
-            }
         }
     }
 
@@ -195,7 +188,7 @@ public class LogRecord implements Runnable {
 
         return msgTemplate;
     }
-    
+
     private boolean isUpperLogLevel(LEVEL logLevel) {
         return logLevel.ordinal() >= this.defaultLevel.ordinal();
     }
