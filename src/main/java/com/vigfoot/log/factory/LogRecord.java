@@ -137,21 +137,10 @@ public class LogRecord implements Runnable {
     }
 
     private void writeLogFile(String logResult) {
-        final File currentLogFile = new File(absolutePath + File.separator + logFileName + ".log");
-        if (currentLogFile.exists()) {
-            final String lastLogDateFormat = new SimpleDateFormat("_yyyyMMdd")
-                    .format(new Date(currentLogFile.lastModified()));
-            final String currentDateFormat = new SimpleDateFormat("_yyyyMMdd")
-                    .format(new Date(currentTimeMillis));
-
-            final boolean isOverMidnight = !currentDateFormat.equalsIgnoreCase(lastLogDateFormat);
-            if (isOverMidnight) {
-                final String recordFileName = absolutePath + File.separator + currentDateFormat + ".log";
-                final boolean renameResult = currentLogFile.renameTo(new File(recordFileName));
-                if (!renameResult) throw new VigLogException();
-            }
-        }
-
+        final String currentDateFormat = new SimpleDateFormat("_yyyyMMdd")
+                .format(new Date(currentTimeMillis));
+        final File currentLogFile = new File(absolutePath + File.separator + logFileName + currentDateFormat + ".log");
+        
         try {
             fileWriter.write(logResult);
         } catch (IOException e) {
